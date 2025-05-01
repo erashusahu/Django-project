@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+Chai aur Tweet ☕🐦
+{% endblock %}
+
+{% block content %}
+<style>
+  /* Fade-in Animation */
+  .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+  }
+
+  /* Dark Mode Styling */
+  body.dark-mode {
+      background-color: #121212;
+      color: #ffffff;
+  }
+
+  .dark-mode .card {
+      background-color: #1e1e1e;
+      color: #ffffff;
+  }
+
+  .dark-mode .btn {
+      border-color: #ffffff;
+      color: #ffffff;
+  }
+
+  .dark-mode .btn:hover {
+      background-color: #ffffff;
+      color: #121212;
+  }
+
+  .toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+  }
+</style>
+
+<div class="container mt-5">
+    <!-- Dark Mode Toggle Button -->
+    <button class="btn btn-outline-dark toggle-btn" onclick="toggleDarkMode()">🌓 Dark Mode</button>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 fw-bold">Chai aur Tweet</h1>
+        <a href="{% url 'tweet_create' %}" class="btn btn-success px-4 py-2">➕ Create a Tweet</a>
+    </div>
+
+    {% if tweets %}
+    <div class="row g-4">
+        {% for tweet in tweets %}
+        <div class="col-md-4 col-sm-6 fade-in">
+            <div class="card shadow-lg border-0 h-100">
+                {% if tweet.photo %}
+                <img src="{{ tweet.photo.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Tweet Image">
+                {% else %}
+                <img src="{% static 'default-image.jpg' %}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="No image available">
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-primary">@{{ tweet.user.username }}</h5>
+                    <p class="card-text flex-grow-1">{{ tweet.text|truncatewords:20 }}</p>
+                    {% if tweet.user == user %}
+                    <div class="mt-3 d-flex justify-content-between">
+                        <a href="{% url 'tweet_edit' tweet.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                        <a href="{% url 'tweet_delete' tweet.id %}" class="btn btn-outline-danger btn-sm"> Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">No tweets available. Be the first to tweet something! 🚀</div>
+    {% endif %}
+</div>
+
+<script>
+  // Fade-in animation on load
+  document.addEventListener("DOMContentLoaded", () => {
+      const cards = document.querySelectorAll(".fade-in");
+      cards.forEach((card, i) => {
+          setTimeout(() => {
+              card.classList.add("show");
+          }, i * 150); // stagger animation
+      });
+  });
+
+  // Dark Mode Toggle
+  function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+  }
+</script>
+{% endblock %}
